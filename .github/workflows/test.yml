@@ -1,0 +1,40 @@
+name: Test Workflow
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    name: Test job
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{matrix.python-version}}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Modify sys.path and export it
+        id: modify-sys-path
+        run: |
+          echo "::set-output name=sys-path::$(realpath .)"
+        shell: bash
+
+      # Add your build/test steps here
+      - name: Run Tests
+        working-directory: test
+        run: python test_adb_py.py
+        env:
+          PYTHONPATH: ${{ steps.modify-sys-path.outputs.sys-path }}
+

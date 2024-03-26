@@ -1,0 +1,7 @@
+adb_py.egg-info
+build
+venv
+dist
+__pycache__
+.idea
+test-reports
