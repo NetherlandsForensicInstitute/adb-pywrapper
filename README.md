@@ -60,7 +60,7 @@ adb_device = AdbDevice(device='your_device_identifier')
 ```
 
 ## ADB Commands
-All the commands below can be called once a device instance has been initiates. This is exemplified by the `adb_device` variable.
+All the commands below can be called once a device instance has been initiated. This is exemplified by the `adb_device` variable.
 
 ## getting root privileges
 You can gain root privilages using the `root` method:
@@ -123,7 +123,7 @@ You can open intents on the device using the `open_intent` method. This is usefu
 Opens a given url on the device by starting an intent. If a default app is associated with this URL, this will  
 result in the app being opened.  
 `:param url:` The URL to open  
-`:return:` the completed process of adb shell am start -a android.intent.action.VIEW -d '{url}'  
+`:return:` the completed process of adb shell and start -a android.intent.action.VIEW -d '{url}'  
 ```python
 intent_result = adb_device.open_intent(url='http://example.com')
 if intent_result.success:
