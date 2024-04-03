@@ -194,4 +194,4 @@ ls(path)
 Be sure to handle errors gracefully in your code, as various operations may fail, adb_py tries to provide information where possible on success or failure in the `AdbResult` and `PullResult` objects.
 
 ## Contributing
-Contributions to the adb_py package are welcome. If you encounter any issues, have suggestions, or want to contribute, 
+Contributions to the adb_py package are welcome. If you encounter any issues, have suggestions, or want to contribute, feel free to open an issue or PR.
