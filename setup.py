@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="adb-pywrapper",
-    version="0.9",
+    version="1.0.0",
     description="adb-pywrapper facilitates seamless interaction with Android devices using the Android Debug Bridge (ADB) "
                 "directly within Python scripts.",
     long_description=f"{open('README.md').read()}",

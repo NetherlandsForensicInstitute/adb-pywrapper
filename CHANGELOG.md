@@ -1,5 +1,5 @@
 ```
-v0.9 - Add Github action to release to PyPi
+v1.0.0 - Change name to adb-pywrapper and add action to release to PyPi
 ```
 ```
 v0.8 - Removed lru_cache function that caused get_prop output to be cached which is not advisable since these properties can change
