@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - '*'
-  workflow_call:
+  workflow_dispatch:
 
 jobs:
   build:
