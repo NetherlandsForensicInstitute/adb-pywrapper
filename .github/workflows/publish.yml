@@ -16,10 +16,19 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
-
+  test:
     runs-on: ubuntu-latest
+    steps:
+      - name: Run tests
+        uses: NetherlandsForensicInstitute/adb_py/.github/workflows/test.yml@main
+        with:
+          wait_interval: 5
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
 
+  publish:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
