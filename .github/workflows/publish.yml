@@ -49,7 +49,7 @@ jobs:
       # Add your build/test steps here
       - name: Run Tests
         working-directory: test
-        run: python test_adb_py.py
+        run: python adb-pywrapper.py
         env:
           PYTHONPATH: ${{ steps.modify-sys-path.outputs.sys-path }}
 
