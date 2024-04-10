@@ -3,11 +3,6 @@ on:
   push:
     branches:
       - '*'
-  workflow_call:
-    wait_interval:
-    propagate_failure:
-    trigger_workflow:
-    wait_workflow:
 
 jobs:
   build:
