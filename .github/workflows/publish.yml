@@ -21,7 +21,7 @@ permissions:
 jobs:
 #  TODO issue #11: deduplicate this, and trigger the test.yml directly
   test:
-    name: Testjob
+    name: Test job
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -54,7 +54,7 @@ jobs:
           PYTHONPATH: ${{ steps.modify-sys-path.outputs.sys-path }}
 
   publish:
-    needs: Testjob
+    needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
