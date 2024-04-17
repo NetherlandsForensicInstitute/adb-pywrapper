@@ -11,7 +11,7 @@ The `AdbDevice` class in the `adb-pywrapper` Python package facilitates seamless
 Installation
 ------------
 
-To install the `adb-pywrapper` package from the internal nexus pipy server, you can use `pip`:
+To install the `adb-pywrapper` package from the internal Nexus PyPI server, you can use `pip`:
 
 ```bash
 pip install adb-pywrapper
