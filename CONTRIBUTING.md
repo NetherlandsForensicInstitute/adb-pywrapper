@@ -26,5 +26,5 @@ By contributing to this project, you agree that your contributions will be licen
 ## Releasing
 
 - Creating a release in GitHub automatically triggers publication on PyPI. Please ensure that your changes are properly documented in the release notes.
-- Semantic versioning should be used
+- Semantic versioning should be used.
 - The tag should be of the form v{version}.
