@@ -1,21 +1,23 @@
-# adb_py Documentation
+# adb-pywrapper
+A python wrapper for the Android Debug Bridge enabling interaction with Android devices and emulators.
 
-<img src="adb_py_logo.jpg" alt="adb_py logo" width="500"/>
+<img src="adb-pywrapper_logo.jpg" alt="adb-pywrapper logo" width="500"/>
+
 
 ## AdbDevice: Interacting with Android Devices using ADB in Python
 
-The `AdbDevice` class in the `adb_py` Python package facilitates seamless interaction with Android devices using the Android Debug Bridge (ADB) directly within Python scripts.
+The `AdbDevice` class in the `adb-pywrapper` Python package facilitates seamless interaction with Android devices using the Android Debug Bridge (ADB) directly within Python scripts.
 
 Installation
 ------------
 
-To install the `adb_py` package from the internal nexus pipy server, you can use `pip`:
+To install the `adb-pywrapper` package from the internal Nexus PyPI server, you can use `pip`:
 
 ```bash
-pip install adb_py
+pip install adb-pywrapper
 ```
 
-Before using `adb_py`, ensure that ADB is installed on your machine and added to PATH. You can download and install the Android SDK, which includes ADB, from the official Android developer website.
+Before using `adb-pywrapper`, ensure that ADB is installed on your machine and added to PATH. You can download and install the Android SDK, which includes ADB, from the official Android developer website.
 
 If running the below in a terminal gives you an output, you are ready to go!
 
@@ -28,7 +30,7 @@ adb --version
 Import the necessary modules:
 
 ```python
-from adb_py import AdbDevice, AdbResult, PullResult
+from adb-pywrapper import AdbDevice, AdbResult, PullResult
 ```
 
 ## Listing Connected Devices
@@ -191,7 +193,7 @@ ls(path)
 * snapshot_delete(delete=None)  
 
 ## Error Handling
-Be sure to handle errors gracefully in your code, as various operations may fail, adb_py tries to provide information where possible on success or failure in the `AdbResult` and `PullResult` objects.
+Be sure to handle errors gracefully in your code, as various operations may fail, adb-pywrapper tries to provide information where possible on success or failure in the `AdbResult` and `PullResult` objects.
 
 ## Contributing
-Contributions to the adb_py package are welcome. If you encounter any issues, have suggestions, or want to contribute, feel free to open an issue or PR.
+Contributions to the adb-pywrapper package are welcome. If you encounter any issues, have suggestions, or want to contribute, feel free to open an issue or PR. Find our contribution guidelines [here](CONTRIBUTING.md).
