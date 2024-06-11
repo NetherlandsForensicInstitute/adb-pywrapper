@@ -1,16 +1,28 @@
 import logging
+import subprocess
 from datetime import datetime
 from os import makedirs, environ
 from os.path import dirname, abspath, isdir, expanduser
 from sys import stdout
 
+from adb_pywrapper.adb_device import AdbDevice
+from adb_pywrapper.adb_result import AdbResult
+from adb_pywrapper.adb_screen_recorder import AdbScreenRecorder
+from adb_pywrapper.pull_result import PullResult
+
 logger = logging.getLogger(__name__)
 
-
+__all__ = [
+    'AdbResult',
+    'PullResult',
+    'AdbDevice',
+    'AdbScreenRecorder',
+]
 ###########################
 # ADB INITIALISATION CODE #
 ###########################
-def _get_sdk_root():
+
+def get_sdk_root():
     """
     Used to initialize ANDROID_SDK_ROOT, should not be called, use ANDROID_SDK_ROOT instead!
     This method looks for the location of your Android SDK. it does so by looking for commonly used environmental
@@ -40,7 +52,21 @@ def _get_sdk_root():
     return possible_paths[0]
 
 
-ANDROID_SDK_HOME = _get_sdk_root()
+ADB_PATH = None
+ANDROID_SDK_HOME = get_sdk_root()
+# initialize adb path: first check if adb is installed and available as a command
+# if not, use the ANDROID_SDK_HOME detected in __init__
+if 'Android Debug Bridge version' in subprocess.getoutput('adb --version'):
+    ADB_PATH = 'adb'
+else:
+    ADB_PATH = f'{ANDROID_SDK_HOME}/platform-tools/adb'
+if 'Android Debug Bridge version' not in subprocess.getoutput(f'{ADB_PATH} --version'):
+    logger.warning(
+        f'Could not locate ADB. expected it available as "{ADB_PATH}" '
+        f'but checking the version gives unexpected output: {subprocess.getoutput(f"{ADB_PATH} --version")}. '
+        f'We are assuming the command `adb` works for now even though it doesn\'t seem to work...')
+    ADB_PATH = 'adb'
+
 
 #####################
 # LOGGING INIT CODE #

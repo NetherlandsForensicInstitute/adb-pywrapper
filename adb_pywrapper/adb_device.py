@@ -1,66 +1,11 @@
-import re
 import subprocess
-import time
 from os import makedirs
-from os.path import basename, isfile, exists
+from os.path import basename, isfile
 from subprocess import CompletedProcess
 from time import sleep
 from typing import Optional
-from uuid import uuid4
 
-import adb_init
-
-ADB_PATH = None
-
-# initialize adb path: first check if adb is installed and available as a command
-# if not, use the ANDROID_SDK_HOME detected in __init__
-if 'Android Debug Bridge version' in subprocess.getoutput('adb --version'):
-    ADB_PATH = 'adb'
-else:
-    ADB_PATH = f'{adb_init.ANDROID_SDK_HOME}/platform-tools/adb'
-if 'Android Debug Bridge version' not in subprocess.getoutput(f'{ADB_PATH} --version'):
-    adb_init.logger.warning(
-        f'Could not locate ADB. expected it available as "{ADB_PATH}" '
-        f'but checking the version gives unexpected output: {subprocess.getoutput(f"{ADB_PATH} --version")}. '
-        f'We are assuming the command `adb` works for now even though it doesn\'t seem to work...')
-    ADB_PATH = 'adb'
-
-
-class AdbResult:
-    def __init__(self, completed_adb_process: CompletedProcess):
-        self.completed_adb_process: CompletedProcess = completed_adb_process
-        self.stdout: str = completed_adb_process.stdout.decode()
-        self.stderr: str = completed_adb_process.stderr.decode()
-        self.success: bool = completed_adb_process.returncode == 0
-
-    def __str__(self) -> str:
-        return f'success : "{self.success}", ' \
-               f'stdout : "{self.stdout}", ' \
-               f'stderr : "{self.stderr}"'
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
-
-class PullResult:
-    """
-    A class to represent the result of an adb pull. it contains three properties:
-        path: the path on which the pulled file should be available if the pull was successful
-        completed_adb_process: the result of the completed adb process
-        success: True if the pull was successful and the file in path exists
-    """
-
-    def __init__(self, result_path: str, adb_result: AdbResult):
-        self.completed_adb_process = adb_result
-        self.path = result_path
-        self.success = exists(result_path)
-
-    def __str__(self) -> str:
-        return f'path : "{self.path}", ' \
-               f'completed_adb_process : [{self.completed_adb_process.__str__()}]"'
-
-    def __repr__(self) -> str:
-        return self.__str__()
+from adb_pywrapper import logger, log_error_and_raise_exception, ADB_PATH, AdbResult, PullResult
 
 
 class AdbDevice:
@@ -69,7 +14,7 @@ class AdbDevice:
         if device is not None and check_device_exists:
             connected_devices = AdbDevice.list_devices()
             if device not in connected_devices:
-                adb_init.log_error_and_raise_exception(adb_init.logger,
+                log_error_and_raise_exception(logger,
                                                        f'Cannot create adb connection with device `{device}` '
                                                        f'as it cannot be found with `adb devices`: {connected_devices}')
         self.device_command = ''
@@ -112,7 +57,7 @@ class AdbDevice:
         """
         result = AdbDevice._adb_command('devices')
         if not result.success:
-            adb_init.log_error_and_raise_exception(adb_init.logger, f'Could not get list of available adb devices. '
+            log_error_and_raise_exception(logger, f'Could not get list of available adb devices. '
                                                                     f'ADB output: {result.stdout}{result.stderr}')
         devices = [line[:line.index('\t')] for line in result.stdout.splitlines() if '\t' in line]
         return devices
@@ -126,13 +71,13 @@ class AdbDevice:
         """
         result = AdbDevice._adb_command('devices')
         if not result.success:
-            adb_init.log_error_and_raise_exception(adb_init.logger, f'Could not get list of available adb devices. '
+            log_error_and_raise_exception(logger, f'Could not get list of available adb devices. '
                                                                     f'ADB output: {result.stdout}{result.stderr}')
         for line in result.stdout.splitlines():
             if line.startswith(device_name):
                 return line.split('\t')[1]
 
-        adb_init.log_error_and_raise_exception(adb_init.logger, f'Could not get status from device {device_name}')
+        log_error_and_raise_exception(logger, f'Could not get status from device {device_name}')
 
     def root(self) -> AdbResult:
         """
@@ -194,7 +139,7 @@ class AdbDevice:
         """
         adb_result = self.shell(f'ls {path}')
         if not adb_result.success:
-            adb_init.log_error_and_raise_exception(adb_init.logger,
+            log_error_and_raise_exception(logger,
                                                    f'Could not get contents of path {path} on device {self.device}. '
                                                    f'adb stderr: {adb_result.stderr}')
         return adb_result.stdout.splitlines()
@@ -206,7 +151,7 @@ class AdbDevice:
         """
         adb_result = self.shell(f'pm list packages')
         if not adb_result.success:
-            adb_init.log_error_and_raise_exception(adb_init.logger,
+            log_error_and_raise_exception(logger,
                                                    f'Could not get installed packages on device {self.device}. '
                                                    f'adb stderr: {adb_result.stderr}')
         return [line[line.index(':') + 1:] for line in adb_result.stdout.splitlines() if line.startswith('package:')]
@@ -222,7 +167,7 @@ class AdbDevice:
         """
         adb_result = self.shell(f'pm path {package_name}')
         if not adb_result.success:
-            adb_init.log_error_and_raise_exception(adb_init.logger,
+            log_error_and_raise_exception(logger,
                                                    f'Could not locate package {package_name} on device {self.device}. '
                                                    f'adb stderr: {adb_result.stderr}')
         return [line[line.index(':') + 1:] for line in adb_result.stdout.splitlines() if line.startswith('package:')]
@@ -236,7 +181,7 @@ class AdbDevice:
         """
         adb_result = self.shell(f"dumpsys package {package_name} | grep versionName")
         if not adb_result.success:
-            adb_init.log_error_and_raise_exception(adb_init.logger,
+            log_error_and_raise_exception(logger,
                                                    f'Could not locate package {package_name} on device {self.device}. '
                                                    f'adb stderr: {adb_result.stderr}')
         result = adb_result.stdout.splitlines()
@@ -272,7 +217,7 @@ class AdbDevice:
                 break
             sleep(1)
         if not pull_result.success:
-            adb_init.log_error_and_raise_exception(adb_init.logger,
+            log_error_and_raise_exception(logger,
                                                    f'Could not pull file {file_to_pull} on device {self.device}, '
                                                    f'adb output: {pull_result.stdout}{pull_result.stderr}')
 
@@ -293,7 +238,7 @@ class AdbDevice:
         result = []
         files_to_pull = self.path_package(package_name)
         if len(files_to_pull) == 0:
-            adb_init.log_error_and_raise_exception(adb_init.logger,
+            log_error_and_raise_exception(logger,
                                                    f'Could not locate any package files for package {package_name} on '
                                                    f'device {self.device}. Is it installed on the device?')
         for file_to_pull in files_to_pull:
@@ -357,10 +302,10 @@ class AdbDevice:
         """
         allowed_subcommands = ["list", "save", "load", "del", "get"]
         if not subcommand in allowed_subcommands:
-            adb_init.log_error_and_raise_exception(adb_init.logger,
+            log_error_and_raise_exception(logger,
                                                    f"Could not execute snapshot subcommand {subcommand}, should be one of {', '.join(allowed_subcommands)}")
         if subcommand not in ["list", "get"] and snapshot_name is None:
-            adb_init.logger.warning(adb_init.logger, f"Snapshot subcommand requires a snapshot_name, None is given.")
+            logger.warning(logger, f"Snapshot subcommand requires a snapshot_name, None is given.")
         return self.emulator_emu_avd(f' snapshot {subcommand} {snapshot_name}')
 
     def emulator_snapshots_list(self) -> list:
@@ -378,7 +323,7 @@ class AdbDevice:
         :param snapshot_name: The name of the snapshot.
         :return: AdbResult object with stdout, stderr if applicable and success True/False.
         """
-        adb_init.logger.info(f"Loading snapshot: {snapshot_name} for {self.device}...")
+        logger.info(f"Loading snapshot: {snapshot_name} for {self.device}...")
 
         if self._snapshot_exists(snapshot_name):
             return self._snapshot_command("load", snapshot_name)
@@ -394,13 +339,13 @@ class AdbDevice:
         :return: AdbResult object with stdout, stderr if applicable and success True/False.
         """
         if self._snapshot_exists(snapshot_name):
-            adb_init.logger.error(f'A snapshot with the name {snapshot_name} already exists')
+            logger.error(f'A snapshot with the name {snapshot_name} already exists')
             return AdbResult(CompletedProcess(args=[], returncode=1, stdout=b'',
                                               stderr=f'A snapshot with the name {snapshot_name} already exists'.encode()))
 
         save_state = self._snapshot_command("save", snapshot_name)
         if save_state.success:
-            adb_init.logger.info(f"Saved snapshot {snapshot_name} of emulator {self.device}")
+            logger.info(f"Saved snapshot {snapshot_name} of emulator {self.device}")
         return save_state
 
     def emulator_snapshot_delete(self, delete: list[str] = None) -> AdbResult:
@@ -438,62 +383,3 @@ class AdbDevice:
                 CompletedProcess(args=[], returncode=0, stdout=f'All provided snapshots were deleted '
                                                                f'successfully'.encode(), stderr=b'')
             )
-
-
-class AdbScreenRecorder:
-    def __init__(self, device: AdbDevice, bit_rate: str = '8M'):
-        self.device = device
-        self._recording_process = None
-        self._recording_folder = f'/sdcard/{uuid4()}'
-        self._bit_rate = bit_rate
-        self.__enter__()
-
-    def __enter__(self):
-        # create recording folder:
-        self.device.shell(f'mkdir {self._recording_folder}')
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        # stop recording if still in process
-        if self.is_recording():
-            self._recording_process.kill()
-        # remove files on device
-        self.device.shell(f'rm -rf {self._recording_folder}')
-
-    def is_recording(self):
-        return self._recording_process is not None and self._recording_process.poll() is None
-
-    def start_recording(self):
-        if not self.is_recording():
-            arguments = f'{ADB_PATH} {self.device.device_command}shell'.split(' ')
-            loop = f'i=1; while true; do screenrecord --bit-rate {self._bit_rate} {self._recording_folder}/$i.mp4; let i=i+1; done'
-            arguments.append(loop)
-            adb_init.logger.info(f'executing adb command: {arguments}')
-            self._recording_process = subprocess.Popen(arguments)
-
-    def _screenrecord_process_active_on_device(self):
-        return '' != self.device.shell('ps -A | grep screenrecord').stdout
-
-    def stop_recording(self, output_folder: str) -> [str]:
-        if not self.is_recording():
-            adb_init.logger.warning(f"Recording was stopped but the recorder wasn't started")
-            return None
-        # Stop background process
-        adb_init.logger.info('Stopping screen recorder...')
-        self._recording_process.terminate()
-        while self._screenrecord_process_active_on_device():
-            time.sleep(0.2)
-        self._recording_process = None
-        # collect recordings
-        video_files = [f'{self._recording_folder}/{file_name}' for file_name in
-                       self.device.ls(self._recording_folder)]
-        adb_init.logger.info(f'Copying video files: {video_files}')
-        pull_results = self.device.pull_multi(video_files, output_folder)
-        failures = [pull_result for pull_result in pull_results if not pull_result.success]
-        if len(failures) > 0:
-            msg = f"Failed to pull file(s) {[failure.path for failure in failures]}"
-            adb_init.log_error_and_raise_exception(adb_init.logger, msg)
-        # clean up recordings on device
-        for video_file in video_files:
-            self.device.shell(f'rm -f {video_file}')
-        return [pull_result.path for pull_result in pull_results]  # pulled files

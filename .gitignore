@@ -1,7 +1,9 @@
 *egg-info
 build
 venv
+.venv
 dist
 __pycache__
 .idea
 test-reports
+.github

@@ -1,9 +1,7 @@
 import os.path
 import subprocess
 import unittest
-from unittest.mock import patch, MagicMock, Mock
-
-from parameterized import parameterized
+from unittest.mock import patch, Mock
 
 from adb_pywrapper import AdbResult, AdbDevice
 
