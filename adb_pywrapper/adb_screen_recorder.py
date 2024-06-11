@@ -2,7 +2,8 @@ import subprocess
 from time import sleep
 from uuid import uuid4
 
-from adb_pywrapper import log_error_and_raise_exception, logger, ADB_PATH, AdbDevice
+from adb_pywrapper import log_error_and_raise_exception, logger, ADB_PATH
+from adb_pywrapper.adb_device import AdbDevice
 
 
 class AdbScreenRecorder:

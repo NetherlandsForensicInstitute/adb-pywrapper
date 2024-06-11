@@ -1,6 +1,6 @@
 import os
 
-from adb_pywrapper import AdbResult
+from adb_pywrapper.adb_result import AdbResult
 
 
 class PullResult:

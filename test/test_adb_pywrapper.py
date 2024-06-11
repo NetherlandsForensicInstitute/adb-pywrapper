@@ -3,7 +3,8 @@ import subprocess
 import unittest
 from unittest.mock import patch, Mock
 
-from adb_pywrapper import AdbResult, AdbDevice
+from adb_pywrapper.adb_device import AdbDevice
+from adb_pywrapper.adb_result import AdbResult
 
 PROCESS = subprocess.run('echo hello', shell=True, capture_output=True)
 MOCK_SUCCESSFULLY_PULLED_FILE = ['abc.apk', 'bla.jpg']
@@ -319,7 +320,7 @@ class TestAdb(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIn('Invalid command', result.stderr)
 
-    @patch('adb_pywrapper.AdbDevice._snapshot_command')
+    @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_command')
     def test_emulator_snapshots_list(self, mock_snapshot_command):
         # Test emulator_snapshots_list function
         snapshot_list_output = """List of snapshots present on all disks:
@@ -334,8 +335,8 @@ OK
         mock_snapshot_command.assert_called_once_with('list')
         self.assertEqual(result, ['snap_2023-11-23_13-13-02', 'snap_2023-12-05_12-56-56'])
 
-    @patch('adb_pywrapper.AdbDevice._snapshot_exists')
-    @patch('adb_pywrapper.AdbDevice._snapshot_command')
+    @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_exists')
+    @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_command')
     def test_emulator_snapshot_load_existing(self, mock_snapshot_command, mock_snapshot_exists):
         # Test emulator_snapshot_load function with an existing snapshot
         mock_snapshot_exists.return_value = True
@@ -346,7 +347,7 @@ OK
         mock_snapshot_exists.assert_called_once_with('snapshot1')
         mock_snapshot_command.assert_called_once_with('load', 'snapshot1')
 
-    @patch('adb_pywrapper.AdbDevice._snapshot_exists')
+    @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_exists')
     def test_emulator_snapshot_load_non_existing(self, mock_snapshot_exists):
         # Test emulator_snapshot_load function with a non-existing snapshot
         mock_snapshot_exists.return_value = False
@@ -356,8 +357,8 @@ OK
         mock_snapshot_exists.assert_called_once_with('non_existing_snapshot')
         self.assertFalse(result.success)
 
-    @patch('adb_pywrapper.AdbDevice._snapshot_exists')
-    @patch('adb_pywrapper.AdbDevice._snapshot_command')
+    @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_exists')
+    @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_command')
     def test_emulator_snapshot_save(self, mock_snapshot_command, mock_snapshot_exists):
         # Test emulator_snapshot_save function
         mock_snapshot_exists.return_value = False
@@ -368,9 +369,9 @@ OK
         mock_snapshot_exists.assert_called_once_with('snapshot1')
         mock_snapshot_command.assert_called_once_with('save', 'snapshot1')
 
-    @patch('adb_pywrapper.AdbDevice.emulator_snapshots_list', return_value=['snapshot1', 'snapshot2'])
-    @patch('adb_pywrapper.AdbDevice._snapshot_exists')
-    @patch('adb_pywrapper.AdbDevice._snapshot_command')
+    @patch('adb_pywrapper.adb_device.AdbDevice.emulator_snapshots_list', return_value=['snapshot1', 'snapshot2'])
+    @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_exists')
+    @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_command')
     def test_emulator_snapshot_delete(self, mock_snapshot_command, mock_snapshot_exists, mock_emulator_snapshots_list):
         # Test emulator_snapshot_delete function
         mock_snapshot_exists.return_value = True  # Existing snapshots

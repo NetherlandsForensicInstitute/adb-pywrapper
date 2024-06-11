@@ -5,7 +5,9 @@ from subprocess import CompletedProcess
 from time import sleep
 from typing import Optional
 
-from adb_pywrapper import logger, log_error_and_raise_exception, ADB_PATH, AdbResult, PullResult
+from adb_pywrapper import logger, log_error_and_raise_exception, ADB_PATH
+from adb_pywrapper.adb_result import AdbResult
+from adb_pywrapper.pull_result import PullResult
 
 
 class AdbDevice:
