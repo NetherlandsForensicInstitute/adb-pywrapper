@@ -30,7 +30,9 @@ adb --version
 Import the necessary modules:
 
 ```python
-from adb_pywrapper import AdbDevice, AdbResult, PullResult
+from adb_pywrapper.adb_device import AdbDevice
+from adb_pywrapper.adb_result import AdbResult
+from adb_pywrapper.pull_result import PullResult
 ```
 
 ## Listing Connected Devices
