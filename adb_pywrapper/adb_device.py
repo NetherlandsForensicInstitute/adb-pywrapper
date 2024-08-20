@@ -92,12 +92,14 @@ class AdbDevice:
             result.success = False
         return result
 
-    def wait_for_device(self) -> AdbResult:
+    def wait_for_device(self, wait_time: Optional[int] = 120) -> AdbResult:
         """
-        Waits for a maximum of 120 seconds until the Android Debug Bridge with the device is available.
+        Waits for a specified amount of seconds or the default 120 seconds until
+        the Android Debug Bridge with the device is available.
+        :param wait_time: amount of seconds to wait for device
         :return: AdbResult containing the completed process of `adb wait-for-device`
         """
-        return self._command('wait-for-device', 120)
+        return self._command('wait-for-device', wait_time)
 
     def shell(self, command: str) -> AdbResult:
         """
