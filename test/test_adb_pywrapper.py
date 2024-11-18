@@ -63,6 +63,11 @@ def mock_adb_call(arguments_string, timeout: int = None):
 
 
 class TestAdb(unittest.TestCase):
+    """
+    DEPRECATED CLASS
+    All new tests should use the unittest framework with patching, in test_adb_device.py
+    Existing tests should be moved, as per issue #21
+    """
 
     def setUp(self) -> None:
         # For testing we create an AdbDevice in which we mock the _adb_command() method.
@@ -181,7 +186,7 @@ class TestAdb(unittest.TestCase):
 
     def test_pull(self):
         success_result = MockAdbResult(
-            stdout='pull successfull! (we don\'t stdout so I can put anything I want here. poop.)')
+            stdout='pull successfull! (we don\'t parse stdout so I can put anything I want here)')
         failure_result = MockAdbResult(stderr='adb gods are angry', success=False)
 
         # pull goes well: we 'pull' a file to this exact location to pretend the pull was successful
@@ -192,7 +197,7 @@ class TestAdb(unittest.TestCase):
         # pull goes well according to adb, but the resulting file is not present so the result should be a failure
         pull_result = self.device.pull('bla', 'folder_for_testing_purposes')
         self.assertFalse(pull_result.success)
-        self.assertTrue(os.path.isdir('folder_for_testing_purposes'))  # destination fodler should be created
+        self.assertTrue(os.path.isdir('folder_for_testing_purposes'))  # destination folder should be created
         os.rmdir('folder_for_testing_purposes')
         # pull goes wrong
         self._mock_adb_results(failure_result)

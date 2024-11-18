@@ -1,6 +1,7 @@
 import subprocess
 from os import makedirs
 from os.path import basename, isfile
+from shlex import quote
 from subprocess import CompletedProcess
 from time import sleep
 from typing import Optional
@@ -17,8 +18,8 @@ class AdbDevice:
             connected_devices = AdbDevice.list_devices()
             if device not in connected_devices:
                 log_error_and_raise_exception(logger,
-                                                       f'Cannot create adb connection with device `{device}` '
-                                                       f'as it cannot be found with `adb devices`: {connected_devices}')
+                                              f'Cannot create adb connection with device `{device}` '
+                                              f'as it cannot be found with `adb devices`: {connected_devices}')
         self.device_command = ''
         if device is not None:
             self.device_command += f'-s {device} '
@@ -60,7 +61,7 @@ class AdbDevice:
         result = AdbDevice._adb_command('devices')
         if not result.success:
             log_error_and_raise_exception(logger, f'Could not get list of available adb devices. '
-                                                                    f'ADB output: {result.stdout}{result.stderr}')
+                                                  f'ADB output: {result.stdout}{result.stderr}')
         devices = [line[:line.index('\t')] for line in result.stdout.splitlines() if '\t' in line]
         return devices
 
@@ -74,7 +75,7 @@ class AdbDevice:
         result = AdbDevice._adb_command('devices')
         if not result.success:
             log_error_and_raise_exception(logger, f'Could not get list of available adb devices. '
-                                                                    f'ADB output: {result.stdout}{result.stderr}')
+                                                  f'ADB output: {result.stdout}{result.stderr}')
         for line in result.stdout.splitlines():
             if line.startswith(device_name):
                 return line.split('\t')[1]
@@ -141,11 +142,11 @@ class AdbDevice:
         :param path: the path on the device
         :return: a list containing the contents of the given path
         """
-        adb_result = self.shell(f'ls {path}')
+        adb_result = self.shell(f'ls {quote(path)}')
         if not adb_result.success:
             log_error_and_raise_exception(logger,
-                                                   f'Could not get contents of path {path} on device {self.device}. '
-                                                   f'adb stderr: {adb_result.stderr}')
+                                          f'Could not get contents of path {path} on device {self.device}. '
+                                          f'adb stderr: {adb_result.stderr}')
         return adb_result.stdout.splitlines()
 
     def installed_packages(self) -> list[str]:
@@ -156,8 +157,8 @@ class AdbDevice:
         adb_result = self.shell(f'pm list packages')
         if not adb_result.success:
             log_error_and_raise_exception(logger,
-                                                   f'Could not get installed packages on device {self.device}. '
-                                                   f'adb stderr: {adb_result.stderr}')
+                                          f'Could not get installed packages on device {self.device}. '
+                                          f'adb stderr: {adb_result.stderr}')
         return [line[line.index(':') + 1:] for line in adb_result.stdout.splitlines() if line.startswith('package:')]
 
     def path_package(self, package_name: str) -> list[str]:
@@ -172,8 +173,8 @@ class AdbDevice:
         adb_result = self.shell(f'pm path {package_name}')
         if not adb_result.success:
             log_error_and_raise_exception(logger,
-                                                   f'Could not locate package {package_name} on device {self.device}. '
-                                                   f'adb stderr: {adb_result.stderr}')
+                                          f'Could not locate package {package_name} on device {self.device}. '
+                                          f'adb stderr: {adb_result.stderr}')
         return [line[line.index(':') + 1:] for line in adb_result.stdout.splitlines() if line.startswith('package:')]
 
     def package_versions(self, package_name: str) -> list[str]:
@@ -186,8 +187,8 @@ class AdbDevice:
         adb_result = self.shell(f"dumpsys package {package_name} | grep versionName")
         if not adb_result.success:
             log_error_and_raise_exception(logger,
-                                                   f'Could not locate package {package_name} on device {self.device}. '
-                                                   f'adb stderr: {adb_result.stderr}')
+                                          f'Could not locate package {package_name} on device {self.device}. '
+                                          f'adb stderr: {adb_result.stderr}')
         result = adb_result.stdout.splitlines()
         return [line.split("=")[-1] for line in result]
 
@@ -202,7 +203,7 @@ class AdbDevice:
         command = 'pull'
         if a:
             command += ' -a'
-        adb_result = self._command(f'{command} {remote}{f" {local}" if local else ""}')
+        adb_result = self._command(f'{command} {quote(remote)}{f" {quote(local)}" if local else ""}')
         return adb_result
 
     def pull(self, file_to_pull: str, destination: str) -> PullResult:
@@ -222,8 +223,8 @@ class AdbDevice:
             sleep(1)
         if not pull_result.success:
             log_error_and_raise_exception(logger,
-                                                   f'Could not pull file {file_to_pull} on device {self.device}, '
-                                                   f'adb output: {pull_result.stdout}{pull_result.stderr}')
+                                          f'Could not pull file {file_to_pull} on device {self.device}, '
+                                          f'adb output: {pull_result.stdout}{pull_result.stderr}')
 
         result_file_path = f'{destination}/{basename(file_to_pull)}'
         return PullResult(result_file_path, pull_result)
@@ -243,8 +244,8 @@ class AdbDevice:
         files_to_pull = self.path_package(package_name)
         if len(files_to_pull) == 0:
             log_error_and_raise_exception(logger,
-                                                   f'Could not locate any package files for package {package_name} on '
-                                                   f'device {self.device}. Is it installed on the device?')
+                                          f'Could not locate any package files for package {package_name} on '
+                                          f'device {self.device}. Is it installed on the device?')
         for file_to_pull in files_to_pull:
             result.append(self.pull(file_to_pull, destination))
         return result
@@ -260,7 +261,7 @@ class AdbDevice:
         command = 'install'
         if r:
             command += ' -r'
-        return self._command(f'{command} {apk_path}')
+        return self._command(f'{command} {quote(apk_path)}')
 
     def install_multiple(self, apk_paths: [str], r: bool = False) -> AdbResult:
         """
@@ -274,7 +275,7 @@ class AdbDevice:
         command = 'install-multiple'
         if r:
             command += ' -r'
-        return self._command(f'{command} {" ".join(apk_paths)}')
+        return self._command(f'{command} {" ".join([quote(path) for path in apk_paths])}')
 
     def open_intent(self, url: str) -> AdbResult:
         """
@@ -307,7 +308,7 @@ class AdbDevice:
         allowed_subcommands = ["list", "save", "load", "del", "get"]
         if not subcommand in allowed_subcommands:
             log_error_and_raise_exception(logger,
-                                                   f"Could not execute snapshot subcommand {subcommand}, should be one of {', '.join(allowed_subcommands)}")
+                                          f"Could not execute snapshot subcommand {subcommand}, should be one of {', '.join(allowed_subcommands)}")
         if subcommand not in ["list", "get"] and snapshot_name is None:
             logger.warning(logger, f"Snapshot subcommand requires a snapshot_name, None is given.")
         return self.emulator_emu_avd(f' snapshot {subcommand} {snapshot_name}')
