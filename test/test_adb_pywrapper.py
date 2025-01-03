@@ -333,12 +333,17 @@ ID        TAG                 VM SIZE                DATE       VM CLOCK
 --        snap_2023-11-23_13-13-02   130M 2023-11-23 13:13:02   00:02:08.739
 --        snap_2023-12-05_12-56-56   130M 2023-12-05 12:56:56   00:01:17.073
 OK
+
+List of partial (non-loadable) snapshots on 'sdcard':
+ID        TAG                 VM SIZE                DATE       VM CLOCK
+--        default_boot            69M 2025-01-03 10:41:26   00:01:42.743
+OK
 """
         mock_snapshot_command.return_value = MockAdbResult(stdout=snapshot_list_output)
         result = self.device.emulator_snapshots_list()
 
         mock_snapshot_command.assert_called_once_with('list')
-        self.assertEqual(result, ['snap_2023-11-23_13-13-02', 'snap_2023-12-05_12-56-56'])
+        self.assertEqual(result, ['snap_2023-11-23_13-13-02', 'snap_2023-12-05_12-56-56', 'default_boot'])
 
     @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_exists')
     @patch('adb_pywrapper.adb_device.AdbDevice._snapshot_command')
