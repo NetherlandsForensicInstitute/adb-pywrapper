@@ -1,14 +1,17 @@
+import re
 import subprocess
 from os import makedirs
 from os.path import basename, isfile
 from shlex import quote
 from subprocess import CompletedProcess
 from time import sleep
-from typing import Optional
+from typing import Optional, List
 
 from adb_pywrapper import logger, log_error_and_raise_exception, ADB_PATH
 from adb_pywrapper.adb_result import AdbResult
 from adb_pywrapper.pull_result import PullResult
+
+_SNAPSHOT_LINE_PATTERN = re.compile('^\\S+\s+(\S+)\s+\S+(\s+[0-9\\-:.]+){3}')
 
 
 class AdbDevice:
@@ -53,7 +56,7 @@ class AdbDevice:
         return AdbDevice._adb_command(f'{self.device_command}{command}', timeout)
 
     @staticmethod
-    def list_devices() -> list[str]:
+    def list_devices() -> List[str]:
         """
         Looks for connected adb devices and returns the device names in a list.
         :return: list of adb device names. Example: ['device-5554','AU9AD74','netagfer987']
@@ -149,7 +152,7 @@ class AdbDevice:
                                           f'adb stderr: {adb_result.stderr}')
         return adb_result.stdout.splitlines()
 
-    def installed_packages(self) -> list[str]:
+    def installed_packages(self) -> List[str]:
         """
         Lists all installed packages on the device.
         :return: a list with all installed packages
@@ -161,7 +164,7 @@ class AdbDevice:
                                           f'adb stderr: {adb_result.stderr}')
         return [line[line.index(':') + 1:] for line in adb_result.stdout.splitlines() if line.startswith('package:')]
 
-    def path_package(self, package_name: str) -> list[str]:
+    def path_package(self, package_name: str) -> List[str]:
         """
         Returns the location of an installed package.
         The result is a list, because applications can be installed using split packages, splitting the apk across
@@ -177,7 +180,7 @@ class AdbDevice:
                                           f'adb stderr: {adb_result.stderr}')
         return [line[line.index(':') + 1:] for line in adb_result.stdout.splitlines() if line.startswith('package:')]
 
-    def package_versions(self, package_name: str) -> list[str]:
+    def package_versions(self, package_name: str) -> List[str]:
         """
         Get the list of version of an installed package.
         Returns a list as split apks each have their own versionName record.
@@ -229,10 +232,10 @@ class AdbDevice:
         result_file_path = f'{destination}/{basename(file_to_pull)}'
         return PullResult(result_file_path, pull_result)
 
-    def pull_multi(self, files_to_pull: [str], destination: str) -> list[PullResult]:
+    def pull_multi(self, files_to_pull: [str], destination: str) -> List[PullResult]:
         return [self.pull(file_to_pull, destination) for file_to_pull in files_to_pull]
 
-    def pull_package(self, package_name: str, destination: str) -> list[PullResult]:
+    def pull_package(self, package_name: str, destination: str) -> List[PullResult]:
         """
         Pulls the apk (or multiple apks if the app uses split packages) from a given package off the devices.
         :param package_name: The package name of the app, eg com.whatsapp
@@ -313,14 +316,18 @@ class AdbDevice:
             logger.warning(logger, f"Snapshot subcommand requires a snapshot_name, None is given.")
         return self.emulator_emu_avd(f' snapshot {subcommand} {snapshot_name}')
 
-    def emulator_snapshots_list(self) -> list:
+    def emulator_snapshots_list(self) -> List[str]:
         """
         Get a list of snapshots from the emulator.
         :return: A list of snapshot names.
         """
         output = self._snapshot_command("list").stdout
-        output_lines = output.splitlines()
-        return [line.split()[1] for line in output_lines[2:-1]]
+        names = []
+        for line in output.splitlines():
+            if _SNAPSHOT_LINE_PATTERN.match(line):
+                name = _SNAPSHOT_LINE_PATTERN.search(line).group(1)
+                names.append(name)
+        return names
 
     def emulator_snapshot_load(self, snapshot_name: str) -> AdbResult:
         """

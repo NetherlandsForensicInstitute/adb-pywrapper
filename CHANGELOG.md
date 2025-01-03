@@ -1,3 +1,8 @@
+1.0.3
+-----
+
+- 23: Fix broken parsing of snapshot list when partial snapshots exist
+
 1.0.2
 -----
 
