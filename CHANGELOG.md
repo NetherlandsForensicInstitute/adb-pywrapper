@@ -1,3 +1,7 @@
+1.0.4
+-----
+Update setuptools version to 78.1.0
+
 1.0.3
 -----
 
