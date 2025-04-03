@@ -1,6 +1,7 @@
-1.0.3
+1.0.4
 -----
 - 25: Remove redundant f in error message
+
 1.0.3
 -----
 - 23: Fix broken parsing of snapshot list when partial snapshots exist
