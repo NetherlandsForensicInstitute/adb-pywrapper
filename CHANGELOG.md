@@ -1,3 +1,7 @@
+1.0.4
+-----
+Update setuptools version to 80.9.0
+
 1.0.3
 -----
 
