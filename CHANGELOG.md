@@ -1,5 +1,6 @@
 1.2.0
 -----
+32: Optionally supply package name when opening an intent
 Update GitHub action version
 
 1.0.4

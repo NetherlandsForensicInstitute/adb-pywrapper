@@ -280,14 +280,15 @@ class AdbDevice:
             command += ' -r'
         return self._command(f'{command} {" ".join([quote(path) for path in apk_paths])}')
 
-    def open_intent(self, url: str) -> AdbResult:
+    def open_intent(self, url: str, package_name: str = "") -> AdbResult:
         """
         Opens a given url on the device by starting an intent. If a default app is associated with this URL, this will
         result in the app being opened.
         :param url: The URL to open
+        :param package_name: The package name the intent should be opened with
         :return: the completed process of adb shell am start -a android.intent.action.VIEW -d '{url}'
         """
-        adb_result = self.shell(f"am start -a android.intent.action.VIEW -d '{url}'")
+        adb_result = self.shell(f"am start -a android.intent.action.VIEW -d '{url}' {package_name}")
         # When the intent could not be opened stderr contains an error message
         adb_result.success = adb_result.stderr == ''
         return adb_result
