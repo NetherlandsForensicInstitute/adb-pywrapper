@@ -231,10 +231,12 @@ class TestAdb(unittest.TestCase):
         intent_failure = MockAdbResult(stdout='Starting: Intent { act=android.intent.action.VIEW dat=bla }',
                                        stderr='Error: Activity not started, unable to resolve Intent { '
                                               'act=android.intent.action.VIEW dat=bla flg=0x10000000 }')
-        self._mock_adb_results(intent_success, intent_failure)
+        self._mock_adb_results(intent_success, intent_success, intent_failure, intent_failure)
 
         self.assertTrue(self.device.open_intent('First call will succees').success)
+        self.assertTrue(self.device.open_intent('First call will succees', 'com.bla').success)
         self.assertFalse(self.device.open_intent('Second call will fail').success)
+        self.assertFalse(self.device.open_intent('Second call will fail', 'com.bla').success)
 
     def test_list_devices(self):
         no_device_connected = MockAdbResult(stdout='List of devices attached\n')

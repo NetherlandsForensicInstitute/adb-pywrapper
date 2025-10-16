@@ -1,2 +1,2 @@
 parameterized~=0.9.0
-setuptools~=65.5.1
+setuptools~=80.9.0

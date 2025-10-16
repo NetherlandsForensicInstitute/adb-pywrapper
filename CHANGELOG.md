@@ -1,6 +1,12 @@
-1.0.4
+1.2.0
 -----
 - 25: Remove redundant f in error message
+- 32: Optionally supply package name when opening an intent
+- Update GitHub action version
+
+1.0.4
+-----
+Update setuptools version to 80.9.0
 
 1.0.3
 -----
