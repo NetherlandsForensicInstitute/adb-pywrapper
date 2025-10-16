@@ -1,3 +1,7 @@
+1.2.0
+-----
+32: Optionally supply package name when opening an intent
+
 1.0.4
 -----
 Update setuptools version to 80.9.0
