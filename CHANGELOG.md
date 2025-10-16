@@ -1,3 +1,7 @@
+1.2.0
+-----
+Update GitHub action version
+
 1.0.4
 -----
 Update setuptools version to 80.9.0
