@@ -1,15 +1,15 @@
 1.2.0
 -----
-32: Optionally supply package name when opening an intent
-Update GitHub action version
+- 25: Remove redundant f in error message
+- 32: Optionally supply package name when opening an intent
+- Update GitHub action version
 
 1.0.4
 -----
-Update setuptools version to 80.9.0
+- Update setuptools version to 80.9.0
 
 1.0.3
 -----
-
 - 23: Fix broken parsing of snapshot list when partial snapshots exist
 
 1.0.2

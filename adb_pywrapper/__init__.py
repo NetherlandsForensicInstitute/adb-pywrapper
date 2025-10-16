@@ -37,7 +37,7 @@ def get_sdk_root():
             return path
     logger.warning(
         f'Could not determine Android SDK ROOT. Define it in one of these env values: {environmental_values},'
-        f'or install the Sdk in one of these locations: {possible_paths}. For now using f{possible_paths[0]} '
+        f'or install the Sdk in one of these locations: {possible_paths}. For now using {possible_paths[0]} '
         f'as Android SDK ROOT.')
     return possible_paths[0]
 
