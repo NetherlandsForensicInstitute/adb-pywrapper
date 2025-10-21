@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="adb_pywrapper",
-    version="1.2.0",
+    version="1.3.0",
     packages=find_packages(),
     test_suite="test",
 
